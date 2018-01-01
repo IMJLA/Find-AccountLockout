@@ -55,8 +55,9 @@
     ToDo: Look for Event 644 on Server 2003 lockout origin DC (when I saw one it was caused by a RADIUS lockout)
     ToDo: Look for Event 1 on the IAS server (?Corresponding event on NPS server?)
     ToDo: Expand the RADIUS Class attribute https://technet.microsoft.com/en-us/library/dd197432(v=ws.10).aspx
+    ToDo: Create and implement LogFile and LogLine classes in TextLog.psm1
+    ToDo: Create and implement classes in AccountLockout.psm1
 #>
-#Requires -Version 5.0
 [CmdletBinding()]
 param(
   

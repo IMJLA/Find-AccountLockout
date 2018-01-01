@@ -923,11 +923,3 @@ Class LockoutUser {
 
   }
 }
-
-
-    <#
-    #Originally I was going to use this to discover the DCs in remote domains
-    #The problem is that it throws an error and returns nothing if there are artifacts in AD from old DCs that no longer have valid DNS A Records
-    $Context = new-object 'System.DirectoryServices.ActiveDirectory.DirectoryContext'("domain", $this.ADDomain.DNSRoot )
-    [System.DirectoryServices.ActiveDirectory.DomainController]::FindAll($Context)
-    #>
