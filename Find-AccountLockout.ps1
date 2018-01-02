@@ -40,6 +40,7 @@
 
       The Default Domain Controllers Policy must have the following setting enabled:
         Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\Audit Policy\Audit account management > Success
+        Computer Configuration\Policies\Windows Settings\Security Settings\Advanced Audit Configuration\Logon/Logoff\Audit Account Lockout > Success
 
       The user running a script must be a member of 'Domain Admins' to access the PDC Emulator's Security log and C$ administrative file share.
     
@@ -58,6 +59,7 @@
     ToDo: Create and implement LogFile and LogLine classes in TextLog.psm1
     ToDo: Create and implement classes in AccountLockout.psm1
 #>
+#Requires -Version 5.0
 [CmdletBinding()]
 param(
   
@@ -88,7 +90,7 @@ param(
   $End,
 
   #Root folder to output the reports into. Default: "$PSScriptRoot\Results"
-  [String]$ReportOutputPath,
+  [String]$Path,
 
   #If enabled, send the report to the user who was locked out
   [Switch]$NotifyUser,
@@ -136,8 +138,21 @@ begin{
   Import-Module "$PSScriptRoot\Modules\UnlikeObject.psm1" -Verbose:$false
 
   #Set the output path to a default value if it was not already specified
-  if ([String]::IsNullOrEmpty($ReportOutputPath)){
-    $ReportOutputPath = "$PSScriptRoot\Results"
+  if ([String]::IsNullOrEmpty($Path)){
+
+    #$ProgData = "$Env:ProgramData\Find-AccountLockout" #This doesn't work, the environment variable isn't reliably there.
+    $Path = "C:\ProgramData\Find-AccountLockout"
+    Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tNew-Item -Type Directory -Path `"$ProgData`" -ErrorAction SilentlyContinue"
+    $null = New-Item -Type Directory -Path $ProgData -ErrorAction SilentlyContinue
+
+    $LogPath = "$ProgData\Logs"
+    Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tNew-Item -Type Directory -Path `"$LogPath`" -ErrorAction SilentlyContinue"
+    $null = New-Item -Type Directory -Path $LogPath -ErrorAction SilentlyContinue
+
+    $Path = "$ProgData\Results"
+    Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tNew-Item -Type Directory -Path `"$Path`" -ErrorAction SilentlyContinue"
+    $null = New-Item -Type Directory -Path $Path -ErrorAction SilentlyContinue
+
   }
 
 }
@@ -148,13 +163,13 @@ process{
   $AccountLockouts = Get-Lockout -User $User -DomainName $DomainName -Start $Start -End $End -SpecialUser $SpecialUser -ErrorAction Continue
 
   #Save the account lockouts that were found
-  Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tSave-Lockout -ReportOutputPath `"$ReportOutputPath`" -MailServer `"$MailServer`" -MailRecipients @('$($MailRecipient -split "`',`'")') -NotifyUser $NotifyUser -ErrorAction Continue"
-  $AccountLockouts | Save-Lockout -ReportOutputPath "$ReportOutputPath" -MailServer "$MailServer" -MailRecipient $MailRecipient -NotifyUser $NotifyUser -ErrorAction Continue
+  Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tSave-Lockout -ReportOutputPath `"$Path`" -MailServer `"$MailServer`" -MailRecipients @('$($MailRecipient -split "`',`'")') -NotifyUser $NotifyUser -ErrorAction Continue"
+  $AccountLockouts | Save-Lockout -ReportOutputPath "$Path" -MailServer "$MailServer" -MailRecipient $MailRecipient -NotifyUser $NotifyUser -ErrorAction Continue
 
 }
 end{
 
-  $NewLog | Out-File "$PSScriptRoot\Logs\$((Get-Date -Format s) -replace ':','-').log"
+  $NewLog | Out-File "$LogPath\$((Get-Date -Format s) -replace ':','-').log"
   Write-Output $AccountLockouts
 
   #Unload modules that were used by the script

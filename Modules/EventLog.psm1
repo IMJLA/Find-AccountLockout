@@ -83,8 +83,12 @@
                 $EventLogSession = New-Object System.Diagnostics.Eventing.Reader.EventLogSession($ComputerName)
                 Write-Output "Export-EventLog`t`t`$EventLogSession.ExportLogAndMessages(`"$Path`",`"$PathType`",@`"`r`n$Query`r`n`"@,`"$LocalPath`",`$$tolerateQueryErrors,`"$targetCultureInfo`")"
                 $EventLogSession.ExportLogAndMessages("$Path","$PathType",$Query,"$LocalPath",$tolerateQueryErrors,$targetCultureInfo)
-                Write-Output "Export-EventLog`t`tGet-ChildItem -Path `"$RemoteTempCurrentExportDir`" -Recurse | Move-Item -Destination `"$DestinationDir`""
-                Get-ChildItem -Path "$RemoteTempCurrentExportDir" -Recurse | Move-Item -Destination "$DestinationDir" -Force
+
+                #Write-Output "Export-EventLog`t`tGet-ChildItem -Path `"$RemoteTempCurrentExportDir`" -Recurse | Move-Item -Destination `"$DestinationDir`""
+                #Get-ChildItem -Path "$RemoteTempCurrentExportDir" -Recurse | Move-Item -Destination "$DestinationDir" -Force #This fails if copying from \\comp1\c$ to \\comp1\c$ with the error "Source and destination path must have identical roots. Move will not work across volumes"
+                
+                Write-Output "Export-EventLog`t`trobocopy `"$RemoteTempCurrentExportDir`" `"$DestinationDir`" *.* /S /E /MOV /R:1 /W:1"
+                $null = & robocopy "$RemoteTempCurrentExportDir" "$DestinationDir" *.* /S /E /MOV /R:1 /W:1
             }
             catch{
                 $CurrentError = $_

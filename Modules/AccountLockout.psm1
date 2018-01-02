@@ -699,7 +699,7 @@ function Save-Lockout {
       $ExportResult = Export-EventLog @Params
 
       ForEach ($Result in $ExportResult){
-          Write-Log -Type 'Verbose' -Text $Result
+          Write-Log -Type 'Debug' -Text $Result
       }
 
     }
@@ -781,7 +781,7 @@ function Search-LockoutComputer {
           Write-Log -Type 'Verbose' -Text "Search-LockoutComputer`tGet-TextLog -ComputerName `"$Computer`" -LogFormat @('$($TextLogFormat -join "','")') -Start `"$Start`" -End `"$End`" -PSSession `$PSSession"
           $LogsAfterStartDate = Get-TextLog @params
           Write-Log -Type 'Debug' -Text "Search-LockoutComputer`tGet-TextLog returned $($LogsAfterStartDate.Count) log files"
-          Write-Log -Type 'Debug' -Text "Search-LockoutComputer`tGet-TextLog returned $($LogsAfterStartDate | fl * | Out-String) log files"
+          #Write-Log -Type 'Debug' -Text "Search-LockoutComputer`tGet-TextLog returned $($LogsAfterStartDate | fl * | Out-String) log files"
 
           #Search the enumerated log files files
           $params = @{
