@@ -141,7 +141,7 @@ begin{
   if ([String]::IsNullOrEmpty($Path)){
 
     #$ProgData = "$Env:ProgramData\Find-AccountLockout" #This doesn't work, the environment variable isn't reliably there.
-    $Path = "C:\ProgramData\Find-AccountLockout"
+    $ProgData = "C:\ProgramData\Find-AccountLockout"
     Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tNew-Item -Type Directory -Path `"$ProgData`" -ErrorAction SilentlyContinue"
     $null = New-Item -Type Directory -Path $ProgData -ErrorAction SilentlyContinue
 
@@ -153,6 +153,9 @@ begin{
     Write-Log -Type 'Verbose' -Text "Find-AccountLockout.ps1`tNew-Item -Type Directory -Path `"$Path`" -ErrorAction SilentlyContinue"
     $null = New-Item -Type Directory -Path $Path -ErrorAction SilentlyContinue
 
+  }
+  else {
+    $LogPath = "$Path\Logs"
   }
 
 }
